@@ -16,6 +16,7 @@ def generate_plot():
     plt.plot(points)
     plt.ylabel('some numbers')
     plt.savefig('test1.png')
+    plt.close()
 
 class TestLinearPlot(unittest.TestCase):
 
