@@ -23,18 +23,16 @@ class Element(object):
         return has_point
 
     def compute_geometric_center(self,image):
-        points_x = []
-        points_y = []
-        for point in self.points:
-            points_x.append(point[1])
-            points_y.append(point[0])
-        self.geometric_center_x = sum(points_x)/len(points_x)
-        self.geometric_center_y = sum(points_y)/len(points_y)
+        min_distance = 9999
         image_geometric_center_x = image.shape[1]/2.0
         image_geometric_center_y = image.shape[0]/2.0
-        magnitude_element = np.sqrt(self.geometric_center_x**2 + self.geometric_center_y**2)
         magnitude_image = np.sqrt(image_geometric_center_x**2 + image_geometric_center_y**2)
-        self.distance_from_center = np.abs(magnitude_element - magnitude_image)
+        for point in self.points:
+            magnitude_point = np.sqrt(point[1]**2 + point[0]**2)
+            distance_from_center = np.abs(magnitude_point - magnitude_image)
+            if distance_from_center < min_distance:
+                min_distance = distance_from_center
+        self.distance_from_center = min_distance
         
 
 class PointsExtractor(object):
@@ -142,7 +140,7 @@ class PointsExtractor(object):
         return image
 
 
-    def __cut_off_borders(self, binarized):
+    def __process(self, binarized):
         
         # above
         max_column = binarized.shape[0]
@@ -225,7 +223,6 @@ class PointsExtractor(object):
                 element_id = it
             it += 1
 
-        element_id = 3
         for point in list_elements_found[element_id].points:
             plt.scatter(point[1], point[0])
         plt.show()
@@ -236,10 +233,9 @@ class PointsExtractor(object):
 
     def extract(self):
         print('extrating')
-        img = imread(self.file_name, mode='L')
-        threshold = np.mean(img)
-        binarized = 1.0 * (img > threshold)
-        self.__cut_off_borders(binarized)
+        img = np.flipud(imread(self.file_name, mode='L'))
+        binarized = 1.0 * (img > np.mean(img))
+        self.__process(binarized)
 
 
 

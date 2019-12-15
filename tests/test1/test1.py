@@ -11,6 +11,7 @@ from points_extractor import PointsExtractor
 
 points = np.array([1, 2, 3, 4])
 file_name = 'test1.png'
+file_name_2 = 'test1_2.png'
 
 def generate_plot():
     plt.plot(points)
@@ -24,7 +25,7 @@ class TestLinearPlot(unittest.TestCase):
         generate_plot()
 
     def test_is_it_the_same(self):
-        points_extractor = PointsExtractor(file_name)
+        points_extractor = PointsExtractor(file_name_2)
         points_extractor.extract()
 
 if __name__ == '__main__':
