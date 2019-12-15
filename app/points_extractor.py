@@ -5,9 +5,17 @@ import matplotlib.pyplot as plt
 import xml.dom.minidom
 import matplotlib.image as mpimg
 from scipy.misc import imread, imsave
+from skimage.measure import block_reduce
+import scipy.signal
+
+from itertools import islice
+
 
 import sys
 sys.setrecursionlimit(100000)
+
+def downsample_to_proportion(rows, proportion=1):
+    return list(islice(rows, 0, len(rows), int(1/proportion)))
 
 class Element(object):
     def __init__(self):
@@ -44,6 +52,13 @@ class PointsExtractor(object):
 
     def __fill_recursively(self, image, element, y, x):
         has_point = element.insert_point(np.array([y,x]))
+        
+        per_x = (np.abs(x - image.shape[1])/float(image.shape[1]) )*100
+        per_y =(np.abs(y - image.shape[0])/float(image.shape[0]) )*100
+        print('x direction:')
+        print( per_x )
+        print('y direction:')
+        print( per_y )
         if has_point:
             return element
         ''' 1 2 3
@@ -223,8 +238,17 @@ class PointsExtractor(object):
                 element_id = it
             it += 1
 
-        for point in list_elements_found[element_id].points:
-            plt.scatter(point[1], point[0])
+        points = downsample_to_proportion(list_elements_found[element_id].points, 0.01)
+
+        points_y = np.array([])
+        points_x = np.array([])
+        for point in points:
+            points_y = np.append(points_y, point[0])
+            points_x = np.append(points_x, point[1])
+
+        points_y_new = scipy.signal.savgol_filter(points_y, 51, 3) # window size 51, polynomial order 3
+            
+        plt.plot(points_x,points_y)
         plt.show()
         import pdb; pdb.set_trace()
         imgplot = plt.imshow(binarized, 'gray')
@@ -235,13 +259,14 @@ class PointsExtractor(object):
         print('extrating')
         img = np.flipud(imread(self.file_name, mode='L'))
         binarized = 1.0 * (img > np.mean(img))
-        self.__process(binarized)
-
-
-
-        import pdb; pdb.set_trace()
-        imgplot = plt.imshow(binarized, 'gray')
+        image_max1 = block_reduce(binarized, block_size=(2, 2), func=np.max)
+        self.__process(image_max1)
+        imgplot = plt.imshow(image_max1, 'gray')
         plt.show()    
+        import pdb; pdb.set_trace()
+
+
+
 
 
 

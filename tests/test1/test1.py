@@ -8,6 +8,7 @@ import sys
 sys.path.append('../../app')
 
 from points_extractor import PointsExtractor
+from PIL import Image
 
 points = np.array([1, 2, 3, 4])
 file_name = 'test1.png'
@@ -25,6 +26,8 @@ class TestLinearPlot(unittest.TestCase):
         generate_plot()
 
     def test_is_it_the_same(self):
+        # im = Image.open(file_name_2)
+        # im.save(file_name_2, dpi=(100,100))
         points_extractor = PointsExtractor(file_name_2)
         points_extractor.extract()
 
