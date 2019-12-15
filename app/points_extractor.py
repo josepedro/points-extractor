@@ -239,16 +239,12 @@ class PointsExtractor(object):
             it += 1
 
         points = downsample_to_proportion(list_elements_found[element_id].points, 0.01)
-
-        points_y = np.array([])
-        points_x = np.array([])
-        for point in points:
-            points_y = np.append(points_y, point[0])
-            points_x = np.append(points_x, point[1])
-
+        newlist = sorted(points, key=lambda x: x[1], reverse=True)
+        points_y = [p[0] for p in newlist]
+        points_x = [p[1] for p in newlist]
         points_y_new = scipy.signal.savgol_filter(points_y, 51, 3) # window size 51, polynomial order 3
             
-        plt.plot(points_x,points_y)
+        plt.plot(points_x,points_y_new)
         plt.show()
         import pdb; pdb.set_trace()
         imgplot = plt.imshow(binarized, 'gray')
